@@ -19,10 +19,13 @@ Having Cycle GANs for ethnicity transformation, e.g.
 
 **Used Datasets**  
 1. CelebA ~ 200.000 images  
+http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html  
 ![alt text](http://mmlab.ie.cuhk.edu.hk/projects/celeba/intro.png)  
 2. UTKFace ~ 20.000 images  
+http://aicip.eecs.utk.edu/wiki/UTKFace  
 ![alt text](http://aicip.eecs.utk.edu/mediawiki/images/thumb/e/ef/LogoFaceWall2.jpg/700px-LogoFaceWall2.jpg) 
-3. LFW (Labeled Faces in the Wild) Database  ~ 13.000 images
+3. LFW (Labeled Faces in the Wild) Database  ~ 13.000 images  
+http://vis-www.cs.umass.edu/lfw/  
 
 **Faced Problems**  
 1. CelebA is a huge dataset but does not have ethnicity labels unfortunately.  
