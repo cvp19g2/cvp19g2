@@ -23,18 +23,15 @@ data_transforms = {
         # Data augmentation is a good practice for the train set
         # Here, we randomly crop the image to 224x224 and
         # randomly flip it horizontally.
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
+        transforms.Resize(224),
         transforms.ToTensor(),
     ]),
     VAL: transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
+        transforms.Resize(224),
         transforms.ToTensor(),
     ]),
     TEST: transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
+        transforms.Resize(224),
         transforms.ToTensor(),
     ])
 }
@@ -66,7 +63,6 @@ print(image_datasets[TRAIN].classes)
 
 vgg16 = models.vgg16_bn()
 vgg16.load_state_dict(torch.load("../input/vgg16bn/vgg16_bn.pth"))
-print(vgg16.classifier[6].out_features) # 1000
 
 
 # Freeze training for all layers
@@ -76,11 +72,12 @@ for param in vgg16.features.parameters():
 # Newly created modules have require_grad=True by default
 num_features = vgg16.classifier[6].in_features
 features = list(vgg16.classifier.children())[:-1] # Remove last layer
-features.extend([nn.Linear(num_features, len(class_names))]) # Add our layer with 4 outputs
+features.extend([nn.Linear(num_features, len(class_names))])
+features.extend([nn.Softmax(0)])# Add our layer with 4 outputs
 vgg16.classifier = nn.Sequential(*features) # Replace the model classifier
 print(vgg16)
 
-resume_training = True
+resume_training = False
 
 if resume_training:
     print("Loading pretrained model..")
@@ -262,5 +259,5 @@ def train_model(vgg, criterion, optimizer, scheduler, num_epochs=10):
     return vgg
 
 
-vgg16 = train_model(vgg16, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=4)
+vgg16 = train_model(vgg16, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=2)
 torch.save(vgg16.state_dict(), 'VGG16_v2-UTK.pt')
