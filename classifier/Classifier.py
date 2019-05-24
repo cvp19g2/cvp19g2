@@ -4,11 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.optim import lr_scheduler
-from torch.autograd import Variable
-import numpy as np
-import torchvision
 from torchvision import datasets, models, transforms
-import matplotlib.pyplot as plt
 import time
 import os
 import copy
@@ -86,10 +82,10 @@ print(vgg16)
 
 def eval_model(vgg, criterion):
     since = time.time()
-    avg_loss = 0
-    avg_acc = 0
-    loss_test = 0
-    acc_test = 0
+    avg_loss = 0.0
+    avg_acc = 0.0
+    loss_test = 0.0
+    acc_test = 0.0
 
     test_batches = len(dataloaders[TEST])
     print("Evaluating model")
@@ -104,9 +100,9 @@ def eval_model(vgg, criterion):
         inputs, labels = data
 
         if use_gpu:
-            inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+            inputs, labels = inputs.cuda(), labels.cuda()
         else:
-            inputs, labels = Variable(inputs), Variable(labels)
+            inputs, labels = inputs, labels
 
         outputs = vgg(inputs)
 
@@ -120,7 +116,7 @@ def eval_model(vgg, criterion):
         torch.cuda.empty_cache()
 
     avg_loss = loss_test / dataset_sizes[TEST]
-    avg_acc = acc_test / dataset_sizes[TEST]
+    avg_acc = float(acc_test) / float(dataset_sizes[TEST])
 
     elapsed_time = time.time() - since
     print()
@@ -130,68 +126,9 @@ def eval_model(vgg, criterion):
     print('-' * 10)
 
 
-def imshow(inp, title=None):
-    inp = inp.numpy().transpose((1, 2, 0))
-    # plt.figure(figsize=(10, 10))
-    plt.axis('off')
-    plt.imshow(inp)
-    if title is not None:
-        plt.title(title)
-    plt.pause(0.001)
-
-    def visualize_model(vgg, num_images=6):
-        was_training = vgg.training
-
-        # Set model for evaluation
-        vgg.train(False)
-        vgg.eval()
-
-        images_so_far = 0
-
-        for i, data in enumerate(dataloaders[TEST]):
-            inputs, labels = data
-            size = inputs.size()[0]
-
-            if use_gpu:
-                inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
-            else:
-                inputs, labels = Variable(inputs), Variable(labels)
-
-            outputs = vgg(inputs)
-
-            _, preds = torch.max(outputs.data, 1)
-            predicted_labels = [preds[j] for j in range(inputs.size()[0])]
-
-            print("Ground truth:")
-            show_databatch(inputs.data.cpu(), labels.data.cpu())
-            print("Prediction:")
-            show_databatch(inputs.data.cpu(), predicted_labels)
-
-            del inputs, labels, outputs, preds, predicted_labels
-            torch.cuda.empty_cache()
-
-            images_so_far += size
-            if images_so_far >= num_images:
-                break
-
-            vgg.train(mode=was_training)
-
-def show_databatch(inputs, classes):
-    out = torchvision.utils.make_grid(inputs)
-    imshow(out, title=[class_names[x] for x in classes])
-
-
 
 # Get a batch of training data
 inputs, classes = next(iter(dataloaders[TRAIN]))
-show_databatch(inputs, classes)
-
-resume_training = False
-
-if resume_training:
-    print("Loading pretrained model..")
-    vgg16.load_state_dict(torch.load('../input/vgg16-transfer-learning-pytorch/VGG16_v2-OCT_Retina.pt'))
-    print("Loaded!")
 
 if use_gpu:
     vgg16.cuda()  # .cuda() will move everything to the GPU side
@@ -211,10 +148,10 @@ def train_model(vgg, criterion, optimizer, scheduler, num_epochs=10):
     best_model_wts = copy.deepcopy(vgg.state_dict())
     best_acc = 0.0
 
-    avg_loss = 0
-    avg_acc = 0
-    avg_loss_val = 0
-    avg_acc_val = 0
+    avg_loss = 0.0
+    avg_acc = 0.0
+    avg_loss_val = 0.0
+    avg_acc_val = 0.0
 
     train_batches = len(dataloaders[TRAIN])
     val_batches = len(dataloaders[VAL])
@@ -241,9 +178,9 @@ def train_model(vgg, criterion, optimizer, scheduler, num_epochs=10):
             inputs, labels = data
 
             if use_gpu:
-                inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+                inputs, labels = inputs.cuda(), labels.cuda()
             else:
-                inputs, labels = Variable(inputs), Variable(labels)
+                inputs, labels = inputs, labels
 
             optimizer.zero_grad()
 
@@ -263,8 +200,8 @@ def train_model(vgg, criterion, optimizer, scheduler, num_epochs=10):
 
         print()
         # * 2 as we only used half of the dataset
-        avg_loss = loss_train * 2 / dataset_sizes[TRAIN]
-        avg_acc = acc_train * 2 / dataset_sizes[TRAIN]
+        avg_loss = float(loss_train * 2) / float(dataset_sizes[TRAIN])
+        avg_acc = float(acc_train * 2) / float(dataset_sizes[TRAIN])
 
         vgg.train(False)
         vgg.eval()
@@ -276,9 +213,9 @@ def train_model(vgg, criterion, optimizer, scheduler, num_epochs=10):
             inputs, labels = data
 
             if use_gpu:
-                inputs, labels = Variable(inputs.cuda()), Variable(labels.cuda())
+                inputs, labels = inputs.cuda(), labels.cuda()
             else:
-                inputs, labels = Variable(inputs), Variable(labels)
+                inputs, labels = inputs, labels
 
             optimizer.zero_grad()
 
@@ -293,8 +230,8 @@ def train_model(vgg, criterion, optimizer, scheduler, num_epochs=10):
             del inputs, labels, outputs, preds
             torch.cuda.empty_cache()
 
-        avg_loss_val = loss_val / dataset_sizes[VAL]
-        avg_acc_val = acc_val / dataset_sizes[VAL]
+        avg_loss_val = float(loss_val) / float(dataset_sizes[VAL])
+        avg_acc_val = float(acc_val) / float(dataset_sizes[VAL])
 
         print()
         print("Epoch {} result: ".format(epoch))
@@ -318,5 +255,5 @@ def train_model(vgg, criterion, optimizer, scheduler, num_epochs=10):
     return vgg
 
 
-vgg16 = train_model(vgg16, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=2)
-torch.save(vgg16.state_dict(), 'VGG16_v2-OCT_Retina_half_dataset.pt')
+vgg16 = train_model(vgg16, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=4)
+torch.save(vgg16.state_dict(), 'VGG16_v2-UTK.pt')
