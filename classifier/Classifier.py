@@ -80,6 +80,13 @@ features.extend([nn.Linear(num_features, len(class_names))]) # Add our layer wit
 vgg16.classifier = nn.Sequential(*features) # Replace the model classifier
 print(vgg16)
 
+resume_training = True
+
+if resume_training:
+    print("Loading pretrained model..")
+    vgg16.load_state_dict(torch.load('../classifier/VGG16_v2-UTK.pt'))
+    print("Loaded!")
+
 def eval_model(vgg, criterion):
     since = time.time()
     avg_loss = 0.0
