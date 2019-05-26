@@ -2,6 +2,8 @@ import os
 
 import dlib
 from PIL import Image
+from joblib import Parallel, delayed
+import multiprocessing
 
 
 def detect_single_face_dlib(img_rgb, rescale=(1.1, 1.5, 1.1, 1.3)):
@@ -30,9 +32,12 @@ def detect_single_face_dlib(img_rgb, rescale=(1.1, 1.5, 1.1, 1.3)):
         face = (fx, fy, fw, fh)
     return face
 
-
-for filename in os.listdir("../data/UTKFace/"):
+def cropImage(filename):
     img = dlib.load_rgb_image("../data/UTKFace/%s"%filename)
     face = detect_single_face_dlib(img)
     toCrop = Image.open("../data/UTKFace/%s"%filename)
-    toCrop.crop(face).save("../data/UTKCropped/%s" % filename);
+    toCrop.crop(face).save("../data/UTKCropped/%s" % filename)
+
+
+num_cores = multiprocessing.cpu_count()
+Parallel(n_jobs=num_cores)(delayed(cropImage)(filename) for filename in os.listdir("../data/UTKFace/"))
