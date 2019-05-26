@@ -5,10 +5,7 @@ from shutil import copyfile
 import numpy
 import torch
 import torch.nn as nn
-import matplotlib.image as mpimg
 from PIL import Image
-from torch.autograd import Variable
-from torchvision import datasets, models, transforms
 import os
 from torchvision import models, transforms
 

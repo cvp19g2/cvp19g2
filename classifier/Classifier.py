@@ -77,7 +77,7 @@ features.extend([nn.Softmax(0)])# Add our layer with 4 outputs
 vgg16.classifier = nn.Sequential(*features) # Replace the model classifier
 print(vgg16)
 
-resume_training = False
+resume_training = True
 
 if resume_training:
     print("Loading pretrained model..")
@@ -259,5 +259,5 @@ def train_model(vgg, criterion, optimizer, scheduler, num_epochs=10):
     return vgg
 
 
-vgg16 = train_model(vgg16, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=2)
+vgg16 = train_model(vgg16, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=5)
 torch.save(vgg16.state_dict(), 'VGG16_v2-UTK.pt')
