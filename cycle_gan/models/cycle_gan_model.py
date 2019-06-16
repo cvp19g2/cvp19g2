@@ -1,6 +1,5 @@
 import itertools
 import torch
-from math import sqrt
 from torch import nn
 
 from util.image_pool import ImagePool
@@ -178,8 +177,8 @@ class CycleGANModel(BaseModel):
 
             self.idt_A = self.netG_A(self.real_B)
 
-            idt_A_features = vgg16.features(self.idt_A)
-            real_B_features = vgg16.features(self.real_B)
+            idt_A_features = vgg16.features(self.idt_A).cuda()
+            real_B_features = vgg16.features(self.real_B).cuda()
 
             #TODO Remove
             #print(idt_A_features.size())
@@ -193,8 +192,8 @@ class CycleGANModel(BaseModel):
 
             self.idt_B = self.netG_B(self.real_A)
 
-            idt_B_features = vgg16.features(self.idt_B)
-            real_A_features = vgg16.features(self.real_A)
+            idt_B_features = vgg16.features(self.idt_B).cuda()
+            real_A_features = vgg16.features(self.real_A).cuda()
 
             distance = torch.dist(idt_B_features, real_A_features, 2)
 
