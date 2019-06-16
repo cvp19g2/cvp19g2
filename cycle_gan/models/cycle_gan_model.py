@@ -1,9 +1,9 @@
 import itertools
 import torch
-from requests import models
 from torch import nn
 
 from util.image_pool import ImagePool
+from torchvision import models
 from .base_model import BaseModel
 from . import networks
 
