@@ -3,7 +3,7 @@ import torch
 from requests import models
 from torch import nn
 
-from cycle_gan.util.image_pool import ImagePool
+from util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
 
