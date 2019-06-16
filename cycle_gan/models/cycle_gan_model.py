@@ -163,37 +163,58 @@ class CycleGANModel(BaseModel):
         lambda_B = self.opt.lambda_B
 
         # Identity loss
+
+        print("Identity loss")
+
         if lambda_idt > 0:
 
             #1. Loss idt A
 
+            print("Loss idt A")
+
             self.idt_A = self.netG_A(self.real_B)
 
+            print("features A")
             idt_A_features = self.vgg16.features(self.idt_A).cuda()
+            print("features B")
             real_B_features = self.vgg16.features(self.real_B).cuda()
+            print("features complete")
 
             #TODO Remove
             #print(idt_A_features.size())
             #print(real_B_features.size())
 
+            print("distance")
             distance = torch.dist(idt_A_features, real_B_features, 2)
+            print("distance complete")
             self.loss_idt_A = distance * lambda_B * lambda_idt
+
+            print("Loss idt A complete")
 
 
             #2. Loss idt B
 
+            print("Loss idt B")
+
             self.idt_B = self.netG_B(self.real_A)
 
+            print("features B")
             idt_B_features = self.vgg16.features(self.idt_B).cuda()
+            print("features A")
             real_A_features = self.vgg16.features(self.real_A).cuda()
+            print("features complete")
 
             distance = torch.dist(idt_B_features, real_A_features, 2)
 
             self.loss_idt_B = distance * lambda_A * lambda_idt
 
+            print("Loss idt B complete")
+
         else:
             self.loss_idt_A = 0
             self.loss_idt_B = 0
+
+        print("Identity loss complete")
 
         # GAN loss D_A(G_A(A))
         self.loss_G_A = self.criterionGAN(self.netD_A(self.fake_B), True)
