@@ -172,6 +172,9 @@ class CycleGANModel(BaseModel):
             features = list(vgg16.classifier.children())[:-3]
             vgg16.classifier = nn.Sequential(*features)
 
+            if torch.cuda.is_available():
+                vgg16.cuda()
+
             pairwiseDistance = nn.PairwiseDistance(p=2)
 
 
