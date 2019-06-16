@@ -169,8 +169,8 @@ class CycleGANModel(BaseModel):
         if lambda_idt > 0:
 
             vgg16 = models.vgg16_bn(pretrained=True)
-            features = list(vgg16.classifier.children())[:-4]
-            vgg16.classifier = nn.Sequential(*features)
+            features = list(vgg16.children())[:-2]
+            vgg16.features = nn.Sequential(*features)
 
             if torch.cuda.is_available():
                 vgg16.cuda()
