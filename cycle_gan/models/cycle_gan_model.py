@@ -169,8 +169,6 @@ class CycleGANModel(BaseModel):
         if lambda_idt > 0:
 
             vgg16 = models.vgg16_bn(pretrained=True)
-            features = list(vgg16.children())[:-2]
-            vgg16.features = nn.Sequential(*features)
 
             if torch.cuda.is_available():
                 vgg16.cuda()
@@ -182,8 +180,8 @@ class CycleGANModel(BaseModel):
 
             self.idt_A = self.netG_A(self.real_B)
 
-            idt_A_features = vgg16(self.idt_A)[-1]
-            real_B_features = vgg16(self.real_B)[-1]
+            idt_A_features = vgg16.features(self.idt_A)
+            real_B_features = vgg16.features(self.real_B)
 
             #TODO Remove
             print(len(idt_A_features))
