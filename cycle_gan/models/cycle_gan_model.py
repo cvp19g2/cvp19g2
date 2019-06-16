@@ -1,6 +1,9 @@
-import torch
 import itertools
-from util.image_pool import ImagePool
+import torch
+from requests import models
+from torch import nn
+
+from cycle_gan.util.image_pool import ImagePool
 from .base_model import BaseModel
 from . import networks
 
@@ -148,19 +151,53 @@ class CycleGANModel(BaseModel):
         fake_A = self.fake_A_pool.query(self.fake_A)
         self.loss_D_B = self.backward_D_basic(self.netD_B, self.real_A, fake_A)
 
+        # Calculate Gram matrix (G = FF^T)
+    def gram(x):
+        (bs, ch, h, w) = x.size()
+        f = x.view(bs, ch, w * h)
+        f_T = f.transpose(1, 2)
+        G = f.bmm(f_T) / (ch * h * w)
+        return G
+
     def backward_G(self):
         """Calculate the loss for generators G_A and G_B"""
         lambda_idt = self.opt.lambda_identity
         lambda_A = self.opt.lambda_A
         lambda_B = self.opt.lambda_B
+
         # Identity loss
         if lambda_idt > 0:
-            # G_A should be identity if real_B is fed: ||G_A(B) - B||
+
+            vgg16 = models.vgg16_bn(pretrained=True)
+            features = list(vgg16.classifier.children())[:-3]
+            vgg16.classifier = nn.Sequential(*features)
+
+            pairwiseDistance = nn.PairwiseDistance(p=2)
+
+
+            #1. Loss idt A
+
             self.idt_A = self.netG_A(self.real_B)
-            self.loss_idt_A = self.criterionIdt(self.idt_A, self.real_B) * lambda_B * lambda_idt
-            # G_B should be identity if real_A is fed: ||G_B(A) - A||
+
+            idt_A_features = vgg16(self.idt_A)[-1]
+            real_B_features = vgg16(self.real_B)[-1]
+
+            distance = pairwiseDistance(idt_A_features, real_B_features)
+
+            self.loss_idt_A = distance * lambda_B * lambda_idt
+
+
+            #2. Loss idt B
+
             self.idt_B = self.netG_B(self.real_A)
-            self.loss_idt_B = self.criterionIdt(self.idt_B, self.real_A) * lambda_A * lambda_idt
+
+            idt_B_features = vgg16(self.idtB)[-1]
+            real_A_features = vgg16(self.real_A)[-1]
+
+            distance = pairwiseDistance(idt_B_features, real_A_features)
+
+            self.loss_idt_B = distance * lambda_A * lambda_idt
+
         else:
             self.loss_idt_A = 0
             self.loss_idt_B = 0
