@@ -185,6 +185,10 @@ class CycleGANModel(BaseModel):
             idt_A_features = vgg16(self.idt_A)[-1]
             real_B_features = vgg16(self.real_B)[-1]
 
+            #TODO Remove
+            print(len(idt_A_features))
+            print(len(real_B_features))
+
             distance = pairwiseDistance(idt_A_features, real_B_features)
 
             self.loss_idt_A = distance * lambda_B * lambda_idt
