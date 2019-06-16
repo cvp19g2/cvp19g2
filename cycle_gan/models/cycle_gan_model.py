@@ -185,8 +185,8 @@ class CycleGANModel(BaseModel):
             real_B_features = vgg16.features(self.real_B)
 
             #TODO Remove
-            print(len(idt_A_features))
-            print(len(real_B_features))
+            print(idt_A_features.size())
+            print(real_B_features.size())
 
             distance = 0
             for i in range(len(idt_A_features[0])):
@@ -201,7 +201,7 @@ class CycleGANModel(BaseModel):
 
             self.idt_B = self.netG_B(self.real_A)
 
-            idt_B_features = vgg16(self.idtB)[-1]
+            idt_B_features = vgg16(self.idt_B)[-1]
             real_A_features = vgg16(self.real_A)[-1]
 
             distance = 0
