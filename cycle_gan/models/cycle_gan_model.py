@@ -182,8 +182,8 @@ class CycleGANModel(BaseModel):
             real_B_features = vgg16.features(self.real_B)
 
             #TODO Remove
-            print(idt_A_features.size())
-            print(real_B_features.size())
+            #print(idt_A_features.size())
+            #print(real_B_features.size())
 
             distance = torch.dist(idt_A_features, real_B_features, 2)
             self.loss_idt_A = distance * lambda_B * lambda_idt
