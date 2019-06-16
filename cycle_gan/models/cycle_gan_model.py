@@ -1,5 +1,6 @@
 import itertools
 import torch
+from math import sqrt
 from torch import nn
 
 from util.image_pool import ImagePool
@@ -187,8 +188,12 @@ class CycleGANModel(BaseModel):
             print(len(idt_A_features))
             print(len(real_B_features))
 
-            distance = pairwiseDistance(idt_A_features, real_B_features)
-
+            distance = 0
+            for i in range(len(idt_A_features[0])):
+                for j in range(len(idt_A_features[0][0])):
+                    for h in range(len(idt_A_features[0][0][0])):
+                        distance += pow(idt_A_features[0][i][j][h] - real_B_features[0][i][j][h], 2)
+            distance = sqrt(distance)
             self.loss_idt_A = distance * lambda_B * lambda_idt
 
 
@@ -199,7 +204,12 @@ class CycleGANModel(BaseModel):
             idt_B_features = vgg16(self.idtB)[-1]
             real_A_features = vgg16(self.real_A)[-1]
 
-            distance = pairwiseDistance(idt_B_features, real_A_features)
+            distance = 0
+            for i in range(len(idt_B_features[0])):
+                for j in range(len(idt_B_features[0][0])):
+                    for h in range(len(idt_B_features[0][0][0])):
+                        distance += pow(idt_B_features[0][i][j][h] - real_A_features[0][i][j][h], 2)
+            distance = sqrt(distance)
 
             self.loss_idt_B = distance * lambda_A * lambda_idt
 
