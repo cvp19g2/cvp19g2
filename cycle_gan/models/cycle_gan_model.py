@@ -196,7 +196,7 @@ class CycleGANModel(BaseModel):
 
             self.idt_B = self.netG_B(self.real_A)
 
-            idt_B_features = vgg16(self.idtB)[-1]
+            idt_B_features = vgg16(self.idt_B)[-1]
             real_A_features = vgg16(self.real_A)[-1]
 
             distance = pairwiseDistance(idt_B_features, real_A_features)
