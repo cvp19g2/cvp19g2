@@ -174,9 +174,6 @@ class CycleGANModel(BaseModel):
             if torch.cuda.is_available():
                 vgg16.cuda()
 
-            pairwiseDistance = nn.PairwiseDistance(p=2)
-
-
             #1. Loss idt A
 
             self.idt_A = self.netG_A(self.real_B)
@@ -201,8 +198,8 @@ class CycleGANModel(BaseModel):
 
             self.idt_B = self.netG_B(self.real_A)
 
-            idt_B_features = vgg16(self.idt_B)[-1]
-            real_A_features = vgg16(self.real_A)[-1]
+            idt_B_features = vgg16.features(self.idt_B)
+            real_A_features = vgg16.features(self.real_A)
 
             distance = 0
             for i in range(len(idt_B_features[0])):
