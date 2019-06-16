@@ -99,6 +99,11 @@ class CycleGANModel(BaseModel):
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
 
+            self.vgg16 = models.vgg16_bn(pretrained=True)
+
+            if torch.cuda.is_available():
+                self.vgg16.cuda()
+
     def set_input(self, input):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.
 
@@ -151,14 +156,6 @@ class CycleGANModel(BaseModel):
         fake_A = self.fake_A_pool.query(self.fake_A)
         self.loss_D_B = self.backward_D_basic(self.netD_B, self.real_A, fake_A)
 
-        # Calculate Gram matrix (G = FF^T)
-    def gram(x):
-        (bs, ch, h, w) = x.size()
-        f = x.view(bs, ch, w * h)
-        f_T = f.transpose(1, 2)
-        G = f.bmm(f_T) / (ch * h * w)
-        return G
-
     def backward_G(self):
         """Calculate the loss for generators G_A and G_B"""
         lambda_idt = self.opt.lambda_identity
@@ -168,17 +165,12 @@ class CycleGANModel(BaseModel):
         # Identity loss
         if lambda_idt > 0:
 
-            vgg16 = models.vgg16_bn(pretrained=True)
-
-            if torch.cuda.is_available():
-                vgg16.cuda()
-
             #1. Loss idt A
 
             self.idt_A = self.netG_A(self.real_B)
 
-            idt_A_features = vgg16.features(self.idt_A).cuda()
-            real_B_features = vgg16.features(self.real_B).cuda()
+            idt_A_features = self.vgg16.features(self.idt_A).cuda()
+            real_B_features = self.vgg16.features(self.real_B).cuda()
 
             #TODO Remove
             #print(idt_A_features.size())
@@ -192,8 +184,8 @@ class CycleGANModel(BaseModel):
 
             self.idt_B = self.netG_B(self.real_A)
 
-            idt_B_features = vgg16.features(self.idt_B).cuda()
-            real_A_features = vgg16.features(self.real_A).cuda()
+            idt_B_features = self.vgg16.features(self.idt_B).cuda()
+            real_A_features = self.vgg16.features(self.real_A).cuda()
 
             distance = torch.dist(idt_B_features, real_A_features, 2)
 
