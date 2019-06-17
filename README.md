@@ -10,6 +10,7 @@ Paper: https://arxiv.org/pdf/1703.10593.pdf
 
 2. Article having (1.) as basis
 
+https://hackernoon.com/gender-and-race-change-on-your-selfie-with-neural-nets-9a9a1c9c5c16
 
 **Goal**  
 Having Cycle GANs for ethnicity transformation, e.g.  
