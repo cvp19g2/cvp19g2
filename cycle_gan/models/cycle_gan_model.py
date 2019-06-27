@@ -57,7 +57,7 @@ class CycleGANModel(BaseModel):
         """
         BaseModel.__init__(self, opt)
         # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
-        self.loss_names = ['D_A', 'G_A', 'cycle_A', 'idt_A', 'D_B', 'G_B', 'cycle_B', 'idt_B', 'feature_reconstruction', 'style_reconstruction']
+        self.loss_names = ['D_A', 'G_A', 'cycle_A', 'idt_A', 'D_B', 'G_B', 'cycle_B', 'idt_B', 'feature_reconstruction_A', 'style_reconstruction_A', 'feature_reconstruction_B', 'style_reconstruction_B']
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
         visual_names_A = ['real_A', 'fake_B', 'rec_A']
         visual_names_B = ['real_B', 'fake_A', 'rec_B']
@@ -184,9 +184,9 @@ class CycleGANModel(BaseModel):
             gramA = gram_matrix(idt_A_features)
             gramB = gram_matrix(real_B_features)
 
-            self.loss_feature_reconstruction = (1/CHW) * distance
-            self.loss_style_reconstruction = torch.norm(gramA - gramB)
-            self.loss_idt_A = (self.loss_feature_reconstruction + self.loss_style_reconstruction) * lambda_B * lambda_idt
+            self.loss_feature_reconstruction_A = (1/CHW) * distance
+            self.loss_style_reconstruction_A = torch.norm(gramA - gramB)
+            self.loss_idt_A = (self.loss_feature_reconstruction_A + self.loss_style_reconstruction_A) * lambda_B * lambda_idt
 
 
             #2. Loss idt B
@@ -201,9 +201,9 @@ class CycleGANModel(BaseModel):
             gramB = gram_matrix(idt_B_features)
             gramA = gram_matrix(real_A_features)
 
-            self.loss_feature_reconstruction = (1/CHW) * distance
-            self.loss_style_reconstruction = torch.norm(gramA - gramB)
-            self.loss_idt_B = (self.loss_feature_reconstruction + self.loss_style_reconstruction) * lambda_A * lambda_idt
+            self.loss_feature_reconstruction_B = (1/CHW) * distance
+            self.loss_style_reconstruction_B = torch.norm(gramA - gramB)
+            self.loss_idt_B = (self.loss_feature_reconstruction_B + self.loss_style_reconstruction_B) * lambda_A * lambda_idt
 
 
         else:
