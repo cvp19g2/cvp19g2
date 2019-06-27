@@ -4,6 +4,8 @@ from torch import nn
 
 from util.image_pool import ImagePool
 from torchvision import models
+
+from cycle_gan.util.util import gram_matrix
 from .base_model import BaseModel
 from . import networks
 
@@ -164,6 +166,8 @@ class CycleGANModel(BaseModel):
 
         # Identity loss
         if lambda_idt > 0:
+            # C * H * W = 7 * 7 * 512
+            CHW = 7 * 7 * 512
 
             #1. Loss idt A
 
@@ -176,7 +180,13 @@ class CycleGANModel(BaseModel):
             #print(real_B_features.size())
 
             distance = torch.dist(idt_A_features, real_B_features, 2)
-            self.loss_idt_A = distance * lambda_B * lambda_idt
+
+            gramA = gram_matrix(idt_A_features)
+            gramB = gram_matrix(real_B_features)
+
+            styleReconstructionLoss = torch.norm(gramA - gramB)
+
+            self.loss_idt_A = ((1/CHW) * distance + styleReconstructionLoss) * lambda_B * lambda_idt
 
 
             #2. Loss idt B
@@ -188,7 +198,13 @@ class CycleGANModel(BaseModel):
 
             distance = torch.dist(idt_B_features, real_A_features, 2)
 
-            self.loss_idt_B = distance * lambda_A * lambda_idt
+            gramB = gram_matrix(idt_B_features)
+            gramA = gram_matrix(real_A_features)
+
+            styleReconstructionLoss = torch.norm(gramA - gramB)
+
+            self.loss_idt_B = ((1/CHW) * distance + styleReconstructionLoss) * lambda_A * lambda_idt
+
 
         else:
             self.loss_idt_A = 0
