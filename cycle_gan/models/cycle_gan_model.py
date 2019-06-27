@@ -164,6 +164,9 @@ class CycleGANModel(BaseModel):
         lambda_A = self.opt.lambda_A
         lambda_B = self.opt.lambda_B
 
+        lambda_feature = 750
+        lambda_style = 75
+
         # Identity loss
         if lambda_idt > 0:
             # C * H * W = 7 * 7 * 512
@@ -184,8 +187,8 @@ class CycleGANModel(BaseModel):
             gramA = gram_matrix(idt_A_features)
             gramB = gram_matrix(real_B_features)
 
-            self.loss_feature_reconstruction = (1/CHW) * distance
-            self.loss_style_reconstruction = torch.norm(gramA - gramB)
+            self.loss_feature_reconstruction = (1/CHW) * distance * lambda_feature
+            self.loss_style_reconstruction = torch.norm(gramA - gramB) * lambda_style
             self.loss_idt_A = (self.loss_feature_reconstruction + self.loss_style_reconstruction) * lambda_B * lambda_idt
 
 
@@ -201,8 +204,8 @@ class CycleGANModel(BaseModel):
             gramB = gram_matrix(idt_B_features)
             gramA = gram_matrix(real_A_features)
 
-            self.loss_feature_reconstruction = (1/CHW) * distance
-            self.loss_style_reconstruction = torch.norm(gramA - gramB)
+            self.loss_feature_reconstruction = (1/CHW) * distance * lambda_feature
+            self.loss_style_reconstruction = torch.norm(gramA - gramB) * lambda_style
             self.loss_idt_B = (self.loss_feature_reconstruction + self.loss_style_reconstruction) * lambda_A * lambda_idt
 
 
