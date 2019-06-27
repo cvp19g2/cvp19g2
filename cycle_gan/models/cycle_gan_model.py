@@ -186,7 +186,7 @@ class CycleGANModel(BaseModel):
 
             self.loss_feature_reconstruction = (1/CHW) * distance
             self.loss_style_reconstruction = torch.norm(gramA - gramB)
-            self.loss_idt_A = (self.loss_feature_reconstructione + self.loss_style_reconstruction) * lambda_B * lambda_idt
+            self.loss_idt_A = (self.loss_feature_reconstruction + self.loss_style_reconstruction) * lambda_B * lambda_idt
 
 
             #2. Loss idt B
@@ -203,7 +203,7 @@ class CycleGANModel(BaseModel):
 
             self.loss_feature_reconstruction = (1/CHW) * distance
             self.loss_style_reconstruction = torch.norm(gramA - gramB)
-            self.loss_idt_B = (self.loss_feature_reconstructione + self.loss_style_reconstruction) * lambda_A * lambda_idt
+            self.loss_idt_B = (self.loss_feature_reconstruction + self.loss_style_reconstruction) * lambda_A * lambda_idt
 
 
         else:
