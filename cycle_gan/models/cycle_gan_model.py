@@ -187,9 +187,9 @@ class CycleGANModel(BaseModel):
             gramA = gram_matrix(idt_A_features)
             gramB = gram_matrix(real_B_features)
 
-            self.loss_feature_reconstruction = (1/CHW) * distance * lambda_feature
-            self.loss_style_reconstruction = torch.norm(gramA - gramB) * lambda_style
-            self.loss_idt_A = (self.loss_feature_reconstruction + self.loss_style_reconstruction) * lambda_B * lambda_idt
+            self.loss_feature_reconstruction_A = (1/CHW) * distance * lambda_feature
+            self.loss_style_reconstruction_A = torch.norm(gramA - gramB) * lambda_style
+            self.loss_idt_A = (self.loss_feature_reconstruction_A + self.loss_style_reconstruction_A) * lambda_B * lambda_idt
 
 
 
@@ -205,9 +205,9 @@ class CycleGANModel(BaseModel):
             gramB = gram_matrix(idt_B_features)
             gramA = gram_matrix(real_A_features)
 
-            self.loss_feature_reconstruction = (1/CHW) * distance * lambda_feature
-            self.loss_style_reconstruction = torch.norm(gramA - gramB) * lambda_style
-            self.loss_idt_B = (self.loss_feature_reconstruction + self.loss_style_reconstruction) * lambda_A * lambda_idt
+            self.loss_feature_reconstruction_B = (1/CHW) * distance * lambda_feature
+            self.loss_style_reconstruction_B = torch.norm(gramA - gramB) * lambda_style
+            self.loss_idt_B = (self.loss_feature_reconstruction_B + self.loss_style_reconstruction_B) * lambda_A * lambda_idt
 
 
 
