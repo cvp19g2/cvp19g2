@@ -170,7 +170,7 @@ class CycleGANModel(BaseModel):
         # Identity loss
         if lambda_idt > 0:
             # C * H * W = 7 * 7 * 512
-            CHW = 7 * 7 * 512
+            CHW = 512 * 7 * 7
 
             #1. Loss idt A
 
