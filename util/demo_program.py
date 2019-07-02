@@ -24,7 +24,7 @@ while True:
         break
     elif k%256 == 32:
         # SPACE pressed
-        img = cv2.imread(img_name)
+        img = frame
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         faces_rects = haar_cascade_face.detectMultiScale(gray, scaleFactor=1.1)
