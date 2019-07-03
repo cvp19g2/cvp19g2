@@ -6,9 +6,6 @@ import sys
 import getopt
 from PIL import Image
 
-width = 178
-height = 218
-
 #https://hackernoon.com/gender-and-race-change-on-your-selfie-with-neural-nets-9a9a1c9c5c16
 def detect_single_face_dlib(img_rgb, rescale=(1.1, 1.5, 1.1, 1.3)):
     fd_front_dlib = dlib.get_frontal_face_detector()
