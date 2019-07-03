@@ -1,6 +1,11 @@
-import torch
 import itertools
+import torch
+from torch import nn
+
 from util.image_pool import ImagePool
+from torchvision import models
+
+from util.util import gram_matrix
 from .base_model import BaseModel
 from . import networks
 
@@ -52,7 +57,7 @@ class CycleGANModel(BaseModel):
         """
         BaseModel.__init__(self, opt)
         # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
-        self.loss_names = ['D_A', 'G_A', 'cycle_A', 'idt_A', 'D_B', 'G_B', 'cycle_B', 'idt_B']
+        self.loss_names = ['D_A', 'G_A', 'cycle_A', 'idt_A', 'D_B', 'G_B', 'cycle_B', 'idt_B', 'feature_reconstruction_A', 'style_reconstruction_A', 'feature_reconstruction_B', 'style_reconstruction_B']
         # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
         visual_names_A = ['real_A', 'fake_B', 'rec_A']
         visual_names_B = ['real_B', 'fake_A', 'rec_B']
@@ -95,6 +100,11 @@ class CycleGANModel(BaseModel):
             self.optimizer_D = torch.optim.Adam(itertools.chain(self.netD_A.parameters(), self.netD_B.parameters()), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
+
+            self.vgg16 = models.vgg16_bn(pretrained=True)
+
+            if torch.cuda.is_available():
+                self.vgg16.cuda()
 
     def set_input(self, input):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.
@@ -153,14 +163,55 @@ class CycleGANModel(BaseModel):
         lambda_idt = self.opt.lambda_identity
         lambda_A = self.opt.lambda_A
         lambda_B = self.opt.lambda_B
+
+        lambda_feature = 750
+        lambda_style = 75
+
         # Identity loss
         if lambda_idt > 0:
-            # G_A should be identity if real_B is fed: ||G_A(B) - B||
+            # C * H * W = 7 * 7 * 512
+            CHW = 512 * 7 * 7
+
+            #1. Loss idt A
+
             self.idt_A = self.netG_A(self.real_B)
-            self.loss_idt_A = self.criterionIdt(self.idt_A, self.real_B) * lambda_B * lambda_idt
-            # G_B should be identity if real_A is fed: ||G_B(A) - A||
+
+            idt_A_features = self.vgg16.features(self.idt_A).cuda()
+            real_B_features = self.vgg16.features(self.real_B).cuda()
+
+            #print(idt_A_features.size())
+            #print(real_B_features.size())
+
+            distance = torch.dist(idt_A_features, real_B_features, 2)
+
+            gramA = gram_matrix(idt_A_features)
+            gramB = gram_matrix(real_B_features)
+
+            self.loss_feature_reconstruction_A = (1/CHW) * distance * lambda_feature
+            self.loss_style_reconstruction_A = torch.norm(gramA - gramB) * lambda_style
+            self.loss_idt_A = ((self.loss_feature_reconstruction_A + self.loss_style_reconstruction_A) * lambda_B * lambda_idt) / 10
+
+
+
+            #2. Loss idt B
+
             self.idt_B = self.netG_B(self.real_A)
-            self.loss_idt_B = self.criterionIdt(self.idt_B, self.real_A) * lambda_A * lambda_idt
+
+            idt_B_features = self.vgg16.features(self.idt_B).cuda()
+            real_A_features = self.vgg16.features(self.real_A).cuda()
+
+            distance = torch.dist(idt_B_features, real_A_features, 2)
+
+            gramB = gram_matrix(idt_B_features)
+            gramA = gram_matrix(real_A_features)
+
+            self.loss_feature_reconstruction_B = (1/CHW) * distance * lambda_feature
+            self.loss_style_reconstruction_B = torch.norm(gramA - gramB) * lambda_style
+            self.loss_idt_B = ((self.loss_feature_reconstruction_B + self.loss_style_reconstruction_B) * lambda_A * lambda_idt) / 10
+
+
+
+
         else:
             self.loss_idt_A = 0
             self.loss_idt_B = 0
