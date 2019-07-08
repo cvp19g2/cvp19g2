@@ -20,12 +20,12 @@ if __name__ == '__main__':
         run('bash ./datasets/download_cyclegan_dataset.sh mini_pix2pix')
 
     # pretrained cyclegan model
-    if not os.path.exists('./checkpoints/horse2zebra_pretrained/latest_net_G.pth'):
+    if not os.path.exists('/cycle_gan/checkpoints/horse2zebra_pretrained/latest_net_G_B.pth'):
         run('bash ./scripts/download_cyclegan_model.sh horse2zebra')
     run('python test.py --model test --dataroot ./datasets/mini --name horse2zebra_pretrained --no_dropout --num_test 1 --no_dropout')
 
     # pretrained pix2pix model
-    if not os.path.exists('./checkpoints/facades_label2photo_pretrained/latest_net_G.pth'):
+    if not os.path.exists('/cycle_gan/checkpoints/facades_label2photo_pretrained/latest_net_G_B.pth'):
         run('bash ./scripts/download_pix2pix_model.sh facades_label2photo')
     if not os.path.exists('./datasets/facades'):
         run('bash ./datasets/download_pix2pix_dataset.sh facades')

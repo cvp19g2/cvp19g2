@@ -1,8 +1,10 @@
 import os.path
-from data.base_dataset import BaseDataset, get_transform
-from data.image_folder import make_dataset
 from PIL import Image
 import random
+
+from cycle_gan.data import BaseDataset
+from cycle_gan.data.base_dataset import get_transform
+from cycle_gan.data.image_folder import make_dataset
 
 
 class UnalignedDataset(BaseDataset):
@@ -13,7 +15,7 @@ class UnalignedDataset(BaseDataset):
     and from domain B '/path/to/data/trainB' respectively.
     You can train the model with the dataset flag '--dataroot /path/to/data'.
     Similarly, you need to prepare two directories:
-    '/path/to/data/testA' and '/path/to/data/testB' during test time.
+    '/path/to/data/testB' and '/path/to/data/testA' during test time.
     """
 
     def __init__(self, opt):

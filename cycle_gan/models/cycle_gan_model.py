@@ -2,10 +2,10 @@ import itertools
 import torch
 from torch import nn
 
-from util.image_pool import ImagePool
+from cycle_gan.util.image_pool import ImagePool
 from torchvision import models
 
-from util.util import gram_matrix
+from cycle_gan.util.util import gram_matrix
 from .base_model import BaseModel
 from . import networks
 
