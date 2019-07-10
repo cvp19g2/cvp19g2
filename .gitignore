@@ -3,6 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+.idea/
+.vscode/
+data/
+results/
+classifier/VGG16_v2-UTK.pt
 # C extensions
 *.so
 
