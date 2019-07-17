@@ -1,4 +1,5 @@
 import cv2
+import numpy
 import numpy as np
 import torch
 from PIL import Image
@@ -80,11 +81,12 @@ while True:
             
             results = getImages(resized_img)
 
-            image_numpy_fakeB = resizeAndPad(tensor2im(results["fake_A"]), (128, 128), 0)
+            image_numpy_fakeB = resizeAndPad(tensor2im(results["fake_B"]), (128, 128), 0)
             image_numpy_recA = resizeAndPad(tensor2im(results["rec_B"]), (128, 128), 0)
 
             image_numpy_fakeB = cv2.cvtColor(image_numpy_fakeB, cv2.COLOR_RGB2BGR)
             image_numpy_recA = cv2.cvtColor(image_numpy_recA, cv2.COLOR_RGB2BGR)
+            resized_img  = cv2.cvtColor(numpy.array(resized_img), cv2.COLOR_RGB2BGR)
 
             numpy_horizontal = np.hstack((resized_img, image_numpy_fakeB, image_numpy_recA))
             
