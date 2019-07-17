@@ -6,7 +6,6 @@ from torchvision.transforms import transforms
 
 from cycle_gan.models import create_model
 from cycle_gan.options.test_options import TestOptions
-from cycle_gan.util import util
 from cycle_gan.util.util import tensor2im
 from util.ImageResizer import resizeAndPad
 
@@ -27,6 +26,7 @@ opt.no_flip = True  # no flip; comment this line if results on flipped images ar
 opt.display_id = -1
 opt.model = "cycle_gan"
 opt.name = "maps_cyclegan"
+opt.no_dropout = "true"
 # no visdom display; the test code saves the results to a HTML file
 model = create_model(opt)  # create a model given opt.model and other options
 model.setup(opt)
@@ -82,12 +82,18 @@ while True:
             new_img = img[newY:(newY+height), newX:(newX+width)]
             resized_img = resizeAndPad(new_img, (128, 128), 0)
 
+            resized_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
+
             cv2.imwrite("sam_%d.jpg"%img_counter, resized_img)
             
             results = getImages(resized_img)
 
-            image_numpy_fakeB = resizeAndPad(tensor2im(results["fake_B"]), (128, 128), 0)
-            image_numpy_recA = resizeAndPad(tensor2im(results["rec_A"]), (128, 128), 0)
+            image_numpy_fakeB = resizeAndPad(tensor2im(results["fake_A"]), (128, 128), 0)
+            image_numpy_recA = resizeAndPad(tensor2im(results["rec_B"]), (128, 128), 0)
+
+            image_numpy_fakeB = cv2.cvtColor(image_numpy_fakeB, cv2.COLOR_RGB2BGR)
+            image_numpy_recA = cv2.cvtColor(image_numpy_recA, cv2.COLOR_RGB2BGR)
+            resized_img = cv2.cvtColor(resized_img, cv2.COLOR_RGB2BGR)
 
             numpy_horizontal = np.hstack((resized_img, image_numpy_fakeB, image_numpy_recA))
             
