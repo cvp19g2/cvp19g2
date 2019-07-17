@@ -8,6 +8,7 @@ from cycle_gan.models import create_model
 from cycle_gan.options.test_options import TestOptions
 from cycle_gan.util.util import tensor2im
 from util.ImageResizer import resizeAndPad
+from util.resize_images import detect_single_face_dlib, image_resize, make_square
 
 cam = cv2.VideoCapture(0)
 
@@ -64,27 +65,18 @@ while True:
     elif k%256 == 32:
         # SPACE pressed
         img = frame
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        face = detect_single_face_dlib(img)
 
-        faces_rects = haar_cascade_face.detectMultiScale(gray, scaleFactor=1.1)
-
-        for (x,y,w,h) in faces_rects:
-
-            enlarge = 1.5
-
-            width = int(w * enlarge)
-            height = int(h * enlarge)
-
-            newX = int(max(0, x - 0.25*w))
-            newY = int(max(0, y - 0.25*h))
+        if face != None:
 
             print("Face found")
-            new_img = img[newY:(newY+height), newX:(newX+width)]
-            resized_img = resizeAndPad(new_img, (128, 128), 0)
 
-            resized_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
+            new_img = img[face[1]:(face[1] + face[3]), face[0]:(face[0] + face[2])]
+            new_img = image_resize(new_img, height=128)
+            new_img = cv2.cvtColor(new_img, cv2.COLOR_BGR2RGB)
+            resized_img = make_square(Image.fromarray(new_img))
 
-            cv2.imwrite("sam_%d.jpg"%img_counter, resized_img)
+            #cv2.imwrite("sam_%d.jpg"%img_counter, resized_img)
             
             results = getImages(resized_img)
 
