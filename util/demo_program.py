@@ -19,6 +19,8 @@ haar_cascade_face = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 
 img_counter = 0
 
+square_length = 300
+
 opt = TestOptions().parse()  # get test option
 # hard-code some parameters for test
 opt.num_threads = 1  # test code only supports num_threads = 1
@@ -81,11 +83,12 @@ while True:
             
             results = getImages(resized_img)
 
-            image_numpy_fakeB = resizeAndPad(tensor2im(results["fake_B"]), (128, 128), 0)
-            image_numpy_recA = resizeAndPad(tensor2im(results["rec_B"]), (128, 128), 0)
+            image_numpy_fakeB = resizeAndPad(tensor2im(results["fake_B"]), (square_length, square_length), 0)
+            image_numpy_recA = resizeAndPad(tensor2im(results["rec_B"]), (square_length,square_length), 0)
 
             image_numpy_fakeB = cv2.cvtColor(image_numpy_fakeB, cv2.COLOR_RGB2BGR)
             image_numpy_recA = cv2.cvtColor(image_numpy_recA, cv2.COLOR_RGB2BGR)
+            resized_img = resized_img.resize((square_length,square_length), Image.ANTIALIAS)
             resized_img  = cv2.cvtColor(numpy.array(resized_img), cv2.COLOR_RGB2BGR)
 
             numpy_horizontal = np.hstack((resized_img, image_numpy_fakeB, image_numpy_recA))
