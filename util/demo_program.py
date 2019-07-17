@@ -43,8 +43,8 @@ def getImages(image):
         transforms.ToTensor(),
     ])
 
-    input["A"] = img_to_pad(Image.fromarray(image)).unsqueeze(0)
-    input["B"] = img_to_pad(Image.fromarray(image)).unsqueeze(0)
+    input["A"] = img_to_pad(image).unsqueeze(0)
+    input["B"] = img_to_pad(image).unsqueeze(0)
     input["A_paths"] = ""
     input["B_paths"] = ""
     model.set_input(input)  # unpack data from data loader
@@ -85,12 +85,10 @@ while True:
 
             image_numpy_fakeB = cv2.cvtColor(image_numpy_fakeB, cv2.COLOR_RGB2BGR)
             image_numpy_recA = cv2.cvtColor(image_numpy_recA, cv2.COLOR_RGB2BGR)
-            resized_img = cv2.cvtColor(resized_img, cv2.COLOR_RGB2BGR)
 
             numpy_horizontal = np.hstack((resized_img, image_numpy_fakeB, image_numpy_recA))
             
             cv2.imshow("GAN Demo", numpy_horizontal)
-            break
 
         escaped = False
         while not escaped:
