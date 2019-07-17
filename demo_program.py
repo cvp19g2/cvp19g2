@@ -1,7 +1,6 @@
 import cv2
 import numpy
 import numpy as np
-import torch
 from PIL import Image
 from torchvision.transforms import transforms
 
