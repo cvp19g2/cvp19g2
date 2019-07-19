@@ -104,3 +104,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+
+# idea
+.idea/
+
+# model weights
+classifier/weights
