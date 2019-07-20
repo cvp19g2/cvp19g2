@@ -30,8 +30,8 @@ opt.batch_size = 1  # test code only supports batch_size = 1
 opt.serial_batches = True  # disable data shuffling; comment this line if results on randomly chosen images are needed.
 opt.no_flip = True  # no flip; comment this line if results on flipped images are needed.
 opt.display_id = -1
-#opt.dataroot = ".\tmp\"
-#opt.checkpoints_dir = ".\cycle_gan\checkpoints\"
+#opt.dataroot = ".\\tmp\\"
+#opt.checkpoints_dir = ".\\cycle_gan\\checkpoints\\"
 opt.model = "cycle_gan"
 opt.no_dropout = "true"
 opt.dataset_mode = "unaligned"
