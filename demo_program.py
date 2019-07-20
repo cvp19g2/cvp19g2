@@ -9,12 +9,15 @@ from cycle_gan.options.test_options import TestOptions
 from cycle_gan.util.util import tensor2im
 from util.ImageResizer import resizeAndPad
 from util.resize_images import detect_single_face_dlib, image_resize, make_square
+import os
+from scipy.misc import imresize
+from cycle_gan.data.base_dataset import get_transform
+from cycle_gan.data import create_dataset
+import sys
 
 cam = cv2.VideoCapture(0)
 
 cv2.namedWindow("GAN Demo")
-
-haar_cascade_face = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 
 img_counter = 0
 
@@ -22,36 +25,20 @@ square_length = 300
 
 opt = TestOptions().parse()  # get test option
 # hard-code some parameters for test
-opt.num_threads = 1  # test code only supports num_threads = 1
+opt.num_threads = 0  # test code only supports num_threads = 1
 opt.batch_size = 1  # test code only supports batch_size = 1
 opt.serial_batches = True  # disable data shuffling; comment this line if results on randomly chosen images are needed.
 opt.no_flip = True  # no flip; comment this line if results on flipped images are needed.
 opt.display_id = -1
+#opt.dataroot = ".\tmp\"
+#opt.checkpoints_dir = ".\cycle_gan\checkpoints\"
 opt.model = "cycle_gan"
-opt.name = "maps_cyclegan"
 opt.no_dropout = "true"
+opt.dataset_mode = "unaligned"
+opt.phase = "test"
 # no visdom display; the test code saves the results to a HTML file
 model = create_model(opt)  # create a model given opt.model and other options
 model.setup(opt)
-
-def f(x):
-    return np.add(128,np.multiply(x, 128))
-
-def getImages(image):
-    input = {}
-
-    img_to_pad = transforms.Compose([
-        transforms.Pad(padding=2, padding_mode="constant", fill=0),
-        transforms.ToTensor(),
-    ])
-
-    input["A"] = img_to_pad(image).unsqueeze(0)
-    input["B"] = img_to_pad(image).unsqueeze(0)
-    input["A_paths"] = ""
-    input["B_paths"] = ""
-    model.set_input(input)  # unpack data from data loader
-    model.test()         # run inference
-    return model.get_current_visuals()  # get image results
 
 while True:
     ret, frame = cam.read()
@@ -78,21 +65,34 @@ while True:
             new_img = cv2.cvtColor(new_img, cv2.COLOR_BGR2RGB)
             resized_img = make_square(Image.fromarray(new_img))
 
-            #cv2.imwrite("sam_%d.jpg"%img_counter, resized_img)
+            resized_img.save(os.path.join("./tmp/testA", "cam.jpg"))
+            resized_img.save(os.path.join("./tmp/testB", "cam.jpg"))
+
+            dataset = create_dataset(opt)
+
+            for i, data in enumerate(dataset):
+                model.set_input(data)  # unpack data from data loader
+                model.test()           # run inference
+                visuals = model.get_current_visuals()  # get image results
+
+                image_numpy_fakeB = imresize(tensor2im(visuals["fake_B"]), (square_length, square_length), interp='bicubic')
+                image_numpy_recA = imresize(tensor2im(visuals["rec_A"]), (square_length, square_length), interp='bicubic')
+
+                image_numpy_fakeB = cv2.cvtColor(image_numpy_fakeB, cv2.COLOR_RGB2BGR)
+                image_numpy_recA = cv2.cvtColor(image_numpy_recA, cv2.COLOR_RGB2BGR)
+
+                resized_img = imresize(resized_img, (square_length, square_length), interp='bicubic')
+                resized_img = cv2.cvtColor(resized_img, cv2.COLOR_RGB2BGR)
+
+                numpy_horizontal = np.hstack((resized_img, image_numpy_fakeB, image_numpy_recA))
+
+                cv2.imshow("GAN Demo", numpy_horizontal)
             
-            results = getImages(resized_img)
+            os.remove(os.path.join("./tmp/testA", "cam.jpg"))
+            os.remove(os.path.join("./tmp/testB", "cam.jpg"))
 
-            image_numpy_fakeB = resizeAndPad(tensor2im(results["fake_B"]), (square_length, square_length), 0)
-            image_numpy_recA = resizeAndPad(tensor2im(results["rec_A"]), (square_length,square_length), 0)
-
-            image_numpy_fakeB = cv2.cvtColor(image_numpy_fakeB, cv2.COLOR_RGB2BGR)
-            image_numpy_recA = cv2.cvtColor(image_numpy_recA, cv2.COLOR_RGB2BGR)
-            resized_img = resized_img.resize((square_length,square_length), Image.ANTIALIAS)
-            resized_img  = cv2.cvtColor(numpy.array(resized_img), cv2.COLOR_RGB2BGR)
-
-            numpy_horizontal = np.hstack((resized_img, image_numpy_fakeB, image_numpy_recA))
-            
-            cv2.imshow("GAN Demo", numpy_horizontal)
+        else:
+            print("No face found")
 
         escaped = False
         while not escaped:
