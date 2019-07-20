@@ -83,7 +83,7 @@ while True:
             results = getImages(resized_img)
 
             image_numpy_fakeB = resizeAndPad(tensor2im(results["fake_B"]), (square_length, square_length), 0)
-            image_numpy_recA = resizeAndPad(tensor2im(results["rec_B"]), (square_length,square_length), 0)
+            image_numpy_recA = resizeAndPad(tensor2im(results["rec_A"]), (square_length,square_length), 0)
 
             image_numpy_fakeB = cv2.cvtColor(image_numpy_fakeB, cv2.COLOR_RGB2BGR)
             image_numpy_recA = cv2.cvtColor(image_numpy_recA, cv2.COLOR_RGB2BGR)
